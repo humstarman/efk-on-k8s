@@ -9,14 +9,14 @@ metadata:
     nginx.ingress.kubernetes.io/auth-url: "https://httpbin.org/basic-auth/root/9ol.8ik,"
 spec:
   rules:
-  - host: es
+  - host: gmt.es.me
     http:
       paths:
       - path: /
         backend:
           serviceName: elasticsearch-logging 
           servicePort: 9200 
-  - host: log 
+  - host: gmt.log.me
     http:
       paths:
       - path: /
