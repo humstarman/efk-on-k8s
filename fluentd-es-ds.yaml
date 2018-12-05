@@ -23,42 +23,41 @@ subjects:
   apiGroup: ""
 roleRef:
   kind: ClusterRole
-  name: cluster-admin
-  apiGroup: ""
+  name: cluster-admin 
+  apiGroup: rbac.authorization.k8s.io
 ---
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: fluentd-es-v2.2.0
+  name: fluentd-es-v2.0.4
   namespace: kube-system
   labels:
     k8s-app: fluentd-es
-    version: v2.2.0
+    version: v2.0.4
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
 spec:
   selector:
     matchLabels:
       k8s-app: fluentd-es
-      version: v2.2.0
+      version: v2.0.4
   template:
     metadata:
       labels:
         k8s-app: fluentd-es
         kubernetes.io/cluster-service: "true"
-        version: v2.2.0
+        version: v2.0.4
       # This annotation ensures that fluentd does not get evicted if the node
       # supports critical pod annotation based priority scheme.
       # Note that this does not guarantee admission on the nodes (#40573).
       annotations:
         scheduler.alpha.kubernetes.io/critical-pod: ''
-        seccomp.security.alpha.kubernetes.io/pod: 'docker/default'
     spec:
       priorityClassName: system-node-critical
       serviceAccountName: fluentd-es
       containers:
       - name: fluentd-es
-        image: lowyard/fluentd-elasticsearch:v2.2.0
+        image: lowyard/fluentd-elasticsearch:v2.0.4
         env:
         - name: FLUENTD_ARGS
           value: --no-supervisor -q
@@ -74,6 +73,9 @@ spec:
         - name: varlibdockercontainers
           mountPath: /var/lib/docker/containers
           readOnly: true
+        - name: realvarlibdockercontainers
+          mountPath: /home/opt/docker/containers
+          readOnly: true
         - name: config-volume
           mountPath: /etc/fluent/config.d
       nodeSelector:
@@ -85,7 +87,10 @@ spec:
           path: /var/log
       - name: varlibdockercontainers
         hostPath:
+          path: /var/lib/docker/containers
+      - name: realvarlibdockercontainers
+        hostPath:
           path: /home/opt/docker/containers
       - name: config-volume
         configMap:
-          name: fluentd-es-config-v0.1.5
+          name: fluentd-es-config-v0.1.4
